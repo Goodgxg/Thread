@@ -1,0 +1,28 @@
+
+public class ThreadDemo{
+public static void main(String[] args){
+  //第一种 继承实现
+  MyThread t1=new MyThread（）；
+  //第二种 接口实现(lambda表达式实现Runnable中的run方法，lambda为jdk1.8新特性，可自行了解)
+  Thread t2=new Thread(()->{
+  //run方法中的逻辑处理
+  });
+  /*
+  第二方法跟下面这个一样：
+  Runnable r=new Runnable（）{
+    @Override
+    public void run（）{
+    }
+    Thread t2=new Thread（r）;
+  } 
+  */
+  //开启线程
+  t1.start（）；
+  t2.start();
+
+}
+}
+
+为什么不是调用run（）  方法而是调用start方法：
+直接调用run（）方法虽然运行结果可能没问题，但是实在当前的线程中执行了run方法
+而start（）是开辟一个新的线程，在新的线程中执行run（）方法。
