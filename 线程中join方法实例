@@ -1,0 +1,36 @@
+需求：一个景点卖票，票的总数为100张，当卖到40张的时候，有一20人的VIP团队过来了，要优先卖给其二十张景票
+public class JoinTest{
+  public static void main(String[] args){
+      TickWindows t=new TickWindows();
+      t.start();
+  }
+
+}
+class TicketCenter{
+  public static int restCount=100;//总共的票数
+}
+class TickWindows extends Thread{
+  @Override
+  public void run(){
+    while(TickCenter.restConut>0){
+      System.out.println("卖给散客一张，剩余"+--TickCenter.restConut+"张");
+      if(TickCenter.restCount==40){
+        VIP vip=new VIP();//实例化一个VIP的线程实例
+        vip.strat();//开启线程
+        try{
+        vip.join();//让线程合并到TickWindows的线程中，直到VIP线程结束，tickwindows才运行
+        }catch(InterruptedException e){
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+}
+class VIP extends Thread{
+  @Override
+  public void run(){
+    for(int i=0;i<20;i++)
+    System.out.println("卖给VIP一张票，剩余："+--TicketCenter.restCount+"张");
+  }
+
+}
