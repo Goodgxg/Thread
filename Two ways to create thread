@@ -1,0 +1,24 @@
+# Thread
+概念：进程包含线程，线程是程序运行时的最小单元（在线程下面其实还有跟小的单元是句柄）
+** 创建线程的两种方式：**
+1.第一种通过继承Thread方法
+class Mythread extends Thread{
+  @Override
+  public void run（）{
+    逻辑执行
+  }
+}
+2.第二种方法通过实现函数式接口Runnable
+lambda表达式的实现方法：
+Runnable r=（）->{
+  逻辑执行（此处是实现Runnable接口中的run方法）
+};
+匿名内部类实现Runnable中的run方法：
+Runnable r=new Runnable（）{
+  @Override
+  public void run(){
+    逻辑执行处
+  }
+比较两种方法优缺点：
+通过继承实现的：优点：容易理解，代码可读性高 缺点：单继承，可能对已有的继承结构造成影响（比如这个类需要继承其他类，又要开辟一个新的线程去执行）
+通过接口实现的：优点：没有继承的限制， 缺点：不容易理解（其实也还好理解了）
