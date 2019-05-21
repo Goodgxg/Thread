@@ -1,0 +1,19 @@
+static void sleep(long millis)throw InterrupterException
+当前线程休眠的时间，单位毫秒。
+
+static Thread currentThread(）获取当前的时间
+
+设置线程的名字三种方法：
+1.Thread t=new Thread(()->{},"thread_name")第一个参数是Runnable接口的实现类，通过lambda实现（可查看api中的Thread类的构造方法）
+2.MyThread t=new MyThread("thread_name")继承类实现，需在类中写构造方法
+3.Thread.currentThread().setName("thread_name");
+
+设置线程的优先级：
+t.setPriority(10)线程默认优先级为5，优先级越高争抢到时间片的概率会增大。
+
+线程礼让：
+Thread.yield()//线程礼让，会释放当前的时间片，从新进入就绪状态太争抢时间片（没啥用）
+
+线程的合并：
+t.join();
+将一个线程合并到当前线程中，当前线程释放时间片，进入阻塞状态，知道合并进来的线程执行完毕。
