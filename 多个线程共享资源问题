@@ -1,0 +1,73 @@
+临界支援:多个线程同时访问的资源.
+如果一个资源被多个线程同时进行修改.由于多个线程是并发执行的,那么这个临界资源的值会出现不可预测的变化.
+
+解决临界资源问题:
+方案:对临界资源上锁,一个线程在拿到标记锁之后,在对资源进行修改,其他线程在锁外等待.
+
+方法一:
+同步代码段:
+它是一个代码段,但这个代码段是同步的.在代码段里的逻辑处理只能让一个线程访问.如果有其他多个线程访问,则需要抢到锁标记后才嫩执行,在此之前,它需要等待.
+同步锁:synchronize后面的小括号,要写上同步锁.理论上同步锁可以是任意对象,但是我们要保证的是任意的线程访问的都是同一个锁标记.
+看下代码:
+需求:两个窗口售卖票的问题:
+public class SaleTickDemo{
+  public static void main(String[] args){
+      Runnable r=()->{
+       TickCenter.sellTick(); 
+     };
+      Thread t1=new Thread(r,"窗口1:");
+      Thread t2=new Thread(r,"窗口2:");
+      t1.start();
+      t2.start();
+  }
+}
+class TickCenter{
+  private static int tick=100;//票的总数
+  public static void sellTick(){
+    while(tick>0)
+    {
+        synchornize(""){//这个锁可以是任意对象,我们在这里设置为空字符串,可以保证每个线程访问的都是同一个锁
+        if(tick<=0)return;//这段代码读者可自行删减看下输出结果.
+        tick--;
+        System.out.println(String.format("[%s]卖出一张票，剩余：[%d]", Thread.currentThread(),tick));
+        }
+   }
+  }
+}
+以上代码模拟了售票的情况.
+方法二
+同步方法:其实就是把需要同步的代码段写到一个新的方法内,在其他方法中调用.
+如果同步方法是静态方法,此时的同步锁是类所,是当前类.class
+如果同步方法是非静态的,此时同步锁是当前的对象,即this
+我们修改上述的TickCenter中的方法:
+class TickCenter{
+  private static int tick=100;
+  public static void sellTick(){
+    while(tick>0)
+    realSellTick():
+  }
+  private static synchornize void realSellTick(){
+    if(tick<=0 )return;
+    tick--;
+     System.out.println(String.format("[%s]卖出一张票，剩余：[%d]", Thread.currentThread(),tick));
+  }
+}
+方法三
+同步锁:这是一个专门来做锁的类.
+修改TickCenter类如下:
+class TickCenter{
+  private static int tick=100;//票的总数
+  private static ReentrantLock lock=new ReentrantLock();
+  public static void sellTick(){
+    while(tick>0)
+    {
+        lock.lock();//上锁
+        if(tick<=0)return;
+        tick--;
+        System.out.println(String.format("[%s]卖出一张票，剩余：[%d]", Thread.currentThread(),tick));
+        lock.unlock;//解锁
+   }
+  }
+}
+
+
