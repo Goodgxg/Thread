@@ -1,0 +1,63 @@
+需求:设计两个线程.一个线程输出1-52,另一个线程输出A-Z;
+要求输出结果为:1 2 A 3 4 B 5 6 C.....
+package com.homework522;
+
+public class NumAndAlp {
+	public static void main(String[] args) {
+		Number n = new Number();
+		Alpha a = new Alpha();
+		Thread t1 = new Thread(n);
+		Thread t2 = new Thread(a);
+		t1.start();
+		t2.start();
+	}
+}
+class Flag {
+	public static boolean flag = false;
+}
+class Number implements Runnable {
+	public static int i = 1;
+	@Override
+	public void run() {
+		synchronized ("a") {
+			while (i <= 52) {
+				if (Flag.flag) {
+					try {
+						"a".wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					System.out.print(i + "" + (i + 1));
+					i = i + 2;
+					Flag.flag = true;
+					"a".notifyAll();
+				}
+			}
+		}
+	}
+}
+
+class Alpha implements Runnable {
+	public static int c = 'A';
+
+	@Override
+	public void run() {
+		while (c <= 'Z') {
+			synchronized ("a") {
+				if (!Flag.flag) {
+					try {
+						"a".wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					System.out.print((char) c);
+					c++;
+					Flag.flag = false;
+					"a".notifyAll();
+				}
+			}
+		}
+	}
+}
