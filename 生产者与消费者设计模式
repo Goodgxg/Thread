@@ -1,0 +1,75 @@
+经典的临界资源共享问题.
+需求:小明买汉堡 
+对于小明来说:判断有没汉堡可以买(消费 ) 如果有:则购买(消费) 如果没有:通知厨师(生产者)做汉堡,然后等待汉堡生产
+对于厨师来说:判断柜台上是否有汉堡, 如果有:厨师就去休息,如果没有:则去做汉堡,然后通知消费者买汉堡.
+下面我们设计:消费者类  生产者类  柜台类 食物(临界资源) 主类.
+柜台类:(因为生产者和消费者公用一个柜台,我们把它设计成单例模式)
+public class Desk{
+  private Desk(){};
+  private static Table instance=new Desk();
+  public static Table getInstance(){
+    return instance;
+  }
+  public Food food;//食物类(汉堡)
+}
+食物类:
+public class Food{
+  public name;
+  Food(String name){this.name=name}
+  @Override
+  public String toString(){
+    return "Food [ name="+this.name+"]";
+  }
+}
+消费者类:consumer类
+public class Consumer implements Runnable{
+  @Override
+	public void run() {
+		@Override
+	public void run() {
+		synchronized ("") {
+			while (true) {
+				if (Desk.getInstance().food == null) {// 如果没有食物,则等待.
+					try {"".wait();	} catch (InterruptedException e) {e.printStackTrace();}
+				} else {
+					// 说明有食物
+					System.out.println(String.format("消费者吃了食物 %s", Thread.currentThread().getName()));
+					// 购买食物后,把柜台上的食物设为空
+					Desk.getInstance().food = null;
+					// 此时柜台上没有食物,通知生产者生产
+					if (Table.getInstance().food == null) {//注意:这个判断有利于读者理解本题,在只有一份食物的时候,我们可以删掉,但是当食物不止一份这个判断就有他的作用了.
+						"".notifyAll();
+					}
+				}
+			}
+		}
+	}
+}
+生产者类:
+public class Productor implements Runnable{
+  @Override
+  public void run(){
+    //判断桌子上是否有食物,有食物,则等待,没食物,则生产.
+    synchronize(""){
+      if(Desk.getInstance().food==null){
+        Food food=new Food("汉堡");//生产
+        Desk.getInstance().food=food;
+        System.out.println(String.format("%s生产了一个汉堡", Thread.currentThread().getName()));
+        if(Desk.getInstance().food!=null){"".notifyAll();}//柜台上有食物了,唤醒等待的消费者.
+      }else{
+        try{"".wait();}catch(InterruptedException e){e.printStackTrace();}
+      }
+    }
+  }
+}
+主类:
+public class Program{
+  public static void main(String[] args){
+    Thread t1=new Thread(new Consumer(),"小明");
+    Thread t2=new Thread(new Productor(),"厨师");
+    t1.start();
+    t2.start();
+  }
+}
+
+
