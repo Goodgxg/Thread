@@ -1,0 +1,88 @@
+类似于一个容器：里面存储了若干个线程。
+传统的线程使用，当需要使用一个线程的时候，就去实例化一个新的线程。当不需要的时候，就直接销毁这个线程了。什么时候在需要使用线程，在去实例化。
+使用线程池，可以实现线程的复用：重复使用。当一个线程使用完毕时，并不是销毁这个线程，而是将这个线程放入一个线程池。
+下次当在次使用线程的时候，直接从这个线程池中获取线程。
+
+核心类；
+ThreadPoolExecutor 类是线程池操作中最核心的类。
+new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler)
+构造方法的参数：
+int corePoolSize  					 	核心线程池大小
+表示线程池中的核心线程有多少个
+int maximumPoolSize 					 线程中的最大线程数量
+int keepAliveTime						核心线程池除外的线程存活的时间。
+TimeUnit unit							keepAliveTime时间单位。TimeUnit是个枚举.下面为它的枚举.
+        NANOSECONDS 纳秒
+        MICROSECONDS 
+        MILLIONSECONDS
+        SECONDS
+        MINUTES
+        HOURS
+        DAYS
+Blockinqueue<Runnable> workQueue  		任务等待队列
+      ArrayBlockingQueue
+      LinkedeBlockingQueue
+      每个等待队列都有一个容量。
+      
+      
+RejectedExecutionHandler handler			拒绝访问队列。       
+      ThreadPoolExecutor.AbortPolicy:丢弃新的任务,并抛出:RejectExecutionException
+      DiscardPolicy 丢弃新的任务,不抛出异常.
+      DiscardOldesPolicy丢弃等待队列中最前面的任务,并尝试重新执行任务.
+      CallerRunsPolicy让调用者线程执行任务.
+      
+代码示例:
+import java.util.concurrent.*;
+public class ThreadPoolDemo {
+	public static void main(String[] args) {
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 100, TimeUnit.MILLISECONDS,
+				new ArrayBlockingQueue<>(5));
+		// //设置核心线程数量
+		// executor.setCorePoolSize(10);
+		// //设置最大线程数量
+		// executor.setMaximumPoolSize(20);
+		// executor.setKeepAliveTime(1000, TimeUnit.MICROSECONDS);
+		// //这些设置需要放到线程池启动之前,加入任务之前.
+		//
+
+		// 设置拒绝访问策略
+		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
+
+		for (int i = 0; i < 16; i++) {
+			executor.execute(new MyTask(i));
+			System.out.println("--------------------------------");
+			System.out.println("当前线程池中的任务数量" + executor.getPoolSize());
+			System.out.println("当前线程池中完成的数量" + executor.getCompletedTaskCount());
+			System.out.println("当前等待队列中线程的数量" + executor.getQueue().size());
+			System.out.println("-----------------------------------");
+		}
+		// 关闭线程池(下达了一个关闭指令,但是并不会立即停止
+		// 当线程池中所有的线程任务都执行结束了,才会停止
+		executor.shutdown();
+		/**
+		 * 下达一个关闭指令,并尝试停止正在运行的线程.
+		 */
+		// executor.shutdownNow();
+	}
+}
+
+class MyTask implements Runnable {
+	private int taskID;
+
+	public MyTask(int taskID) {
+		this.taskID = taskID;
+	}
+
+	@Override
+	public void run() {
+		System.out.println(Thread.currentThread().getName() + ":开始执行了" + this.taskID);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println(Thread.currentThread().getName() + ":线程结束了");
+	}
+
+}
+
